@@ -1,0 +1,55 @@
+name: CI - Build and smoke test (sin Docker)
+
+on:
+  push:
+    branches: [ trunk, main ]
+  pull_request:
+    branches: [ trunk, main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python3 -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Start server (background)
+        run: |
+          # Ejecuta la app con python3 main.py en background; main.py debe iniciar uvicorn al ejecutarse
+          python3 main.py &
+          echo $! > server.pid
+          # Dar un poco de tiempo al arranque inicial
+          sleep 2
+
+      - name: Wait for server to be ready
+        run: |
+          for i in {1..15}; do
+            if curl -sS http://127.0.0.1:8000/ >/dev/null 2>&1; then
+              echo "Server is up"
+              break
+            fi
+            sleep 1
+            echo "Waiting for server... ($i)"
+          done
+
+      - name: Stop server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+            rm server.pid || true
+          else
+            # fallback: intentar matar uvicorn si existe
+            pkill -f "uvicorn" || true
+          fi
