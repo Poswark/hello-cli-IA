@@ -1,40 +1,51 @@
-name: Copilot PR Review
+name: Gemini PR Review
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  copilot-pr-review:
+  gemini-review:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
-          python-version: '3.x'
+          fetch-depth: 0  # NECESARIO para git diff entre ramas
 
-      - name: Install copilot-cli
-        run: pip install github-copilot-cli
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-      - name: Get PR diff
-        id: diff
+      - name: Install gemini-cli
         run: |
-          git fetch origin ${{ github.base_ref }}
-          git diff origin/${{ github.base_ref }}...HEAD > pr.diff
+          npm install -g @google/gemini-cli
 
-      - name: Analyze diff with Copilot CLI
-        id: copilot
+      - name: Generate diff and analyze with Gemini
         env:
-          GITHUB_COPILOT_TOKEN: ${{ secrets.COPILOT_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
         run: |
-          copilot suggest --diff pr.diff --output pr_review.md
+          bash .github/scripts/gemini_pr_review.sh
 
-      - name: Comment on PR
-        uses: peter-evans/create-or-update-comment@v3
+      - name: Comment PR with Gemini analysis
+        uses: actions/github-script@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body-file: pr_review.md
+          script: |
+            const fs = require('fs');
+
+            const comment = fs.readFileSync('gemini_review.md', 'utf8');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
