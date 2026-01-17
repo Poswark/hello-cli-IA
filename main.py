@@ -7,12 +7,14 @@ app = FastAPI()
 @app.get("/")
 async def read_root():
     """
-    Respuesta JSON con el prompt en español y un número aleatorio del 1 al 10.
+    Respuesta JSON con el prompt en español y una lista de números del 1 al 20, espera 10 segundos.
     """
-    numero = random.randint(1, 10)
+    import asyncio
+    numeros = list(range(1, 21))
+    await asyncio.sleep(10)
     return {
-        "prompt": "Piensa un numero del 1 al 10",
-        "numero": numero
+        "prompt": "Piensa un numero del 1 al 20",
+        "numeros": numeros
     }
 
 if __name__ == "__main__":
