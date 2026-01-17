@@ -35,8 +35,9 @@ EOF
 
 echo "🤖 Enviando diff a Gemini..."
 
-echo "$PROMPT" | gemini \
-  --model gemini-1.5-pro \
-  --markdown > gemini_review.md
+
+# Eliminamos --markdown que no existe y pasamos el prompt correctamente
+gemini "$PROMPT" --model gemini-1.5-pro > gemini_review.md
 
 echo "✅ Análisis generado en gemini_review.md"
+cat gemini_review.md
