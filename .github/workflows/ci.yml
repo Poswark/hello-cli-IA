@@ -2,9 +2,9 @@ name: CI - Build and smoke test (sin Docker)
 
 on:
   push:
-    branches: [ trunk, main ]
+    branches: [ trunk, feature/* ]
   pull_request:
-    branches: [ trunk, main ]
+    branches: [ trunk, feature/*  ]
 
 jobs:
   test:
