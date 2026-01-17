@@ -14,19 +14,26 @@ if [ -z "$DIFF" ]; then
 fi
 
 PROMPT=$(cat <<EOF
-Eres un **revisor experto de código**.
+Actúa como un Ingeniero de Software Senior y Revisor de Código. 
+Tu única tarea es evaluar la calidad técnica de los cambios en este Pull Request, centrándote especialmente en la lógica de 'main.py' si está presente.
 
-Analiza el siguiente \`git diff\` y genera un **comentario de revisión en Markdown** con:
+Por favor, estructura tu respuesta de la siguiente manera:
 
-### ✅ Fortalezas
-### ⚠️ Problemas detectados
-### 🛠️ Mejoras sugeridas (con ejemplos si aplica)
-### 🔐 Seguridad (si aplica)
-### 📏 Buenas prácticas
+### 🔍 Análisis Técnico
+- **Eficiencia:** ¿Hay algoritmos ineficientes o redundantes?
+- **Legibilidad:** ¿El código sigue PEP 8 (si es Python) y es fácil de mantener?
+- **Robustez:** ¿Falta manejo de errores o validación de entradas?
 
-Sé claro, conciso y útil para un Pull Request.
+### 🚩 Errores Críticos y Bugs
+- Identifica cualquier fallo lógico o potencial crash.
 
-Diff:
+### 💡 Refactorización Sugerida
+- Proporciona un bloque de código corto con una versión mejorada de las partes más débiles.
+
+### 🧪 Sugerencias de Tests
+- ¿Qué casos de prueba deberían agregarse para validar estos cambios?
+
+Diff del código:
 \`\`\`diff
 $DIFF
 \`\`\`
