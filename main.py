@@ -14,6 +14,7 @@ async def read_root():
         "prompt": "Piensa un numero del 1 al 10",
         "numero": numero
     }
+    print()
 
 if __name__ == "__main__":
     # Ejecuta con: python3 main.py
